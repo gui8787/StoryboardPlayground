@@ -8,16 +8,19 @@
 import UIKit
 
 class CustomCollectionView: UIView, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    var games: [Game] = StorageManager.shared.loadItems() // Load all games
     
-    private let cellIdentifier = "ScrollCell" // Reuse identifier
+    private let cellIdentifier = "ScrollCell" // Reuse identifiers
     private let headerIdentifier = "SectionHeader"
     
+    let sectionHeaderHeight: CGFloat = 40 // Height of the header
+    
     let collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout() // Or a custom layout
+        let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical // Vertical scrolling
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .systemBackground // Or your preferred background color
+        collectionView.backgroundColor = .systemBackground
         return collectionView
     }()
     
@@ -57,25 +60,54 @@ class CustomCollectionView: UIView, UICollectionViewDataSource, UICollectionView
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! HorizontalScrollView
-        return cell // The HorizontalScrollView handles its own data and layout
+        cell.cellItems = games
+        cell.isFavoritesSection = indexPath.section == 0
+        
+        cell.onFavoriteButtonTapped = { [weak self] gameTitle, isFavorite in
+            guard let self = self else { return }
+            
+            if let gameIndex = self.games.firstIndex(where: { $0.title == gameTitle }) {
+                self.games[gameIndex].isFavorite = isFavorite
+                StorageManager.shared.saveMyGames(self.games)
+                
+                // Reload relevant sections in both HorizontalScrollViews
+                let favoriteSectionIndex = 0
+                let nonFavoriteSectionIndex = 1
+                
+                if let favoriteCell = self.collectionView.cellForItem(at: IndexPath(item: 0, section: favoriteSectionIndex)) as? HorizontalScrollView,
+                   let nonFavoriteCell = self.collectionView.cellForItem(at: IndexPath(item: 0, section: nonFavoriteSectionIndex)) as? HorizontalScrollView {
+                    nonFavoriteCell.updateCells(with: self.games)
+                    favoriteCell.updateCells(with: self.games)
+                }
+            }
+        }
+        return cell
+    }
+    
+    // UICollectionViewDelegateFlowLayout methods (for the vertical collection view)
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        guard let superview = collectionView.superview else {
+            return CGSize(width: collectionView.frame.width, height: 400)
+        }
+        let safeAreaHeight = superview.safeAreaLayoutGuide.layoutFrame.height
+        let availableHeight = safeAreaHeight - sectionHeaderHeight * 2 // Account for two headers
+
+        // Divide available height by the number of sections
+        let heightPerSection = max(availableHeight / 2, 400)
+        return CGSize(width: collectionView.frame.width, height: heightPerSection)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return CGSize(width: collectionView.frame.width, height: sectionHeaderHeight)
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if kind == UICollectionView.elementKindSectionHeader {
             let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerIdentifier, for: indexPath) as! SectionHeaderView
-            headerView.titleLabel.text = "Section \(indexPath.section + 1)" // Set header title
+            headerView.titleLabel.text = indexPath.section == 0 ? "Favorites" : "All Games"
             return headerView
         }
         return UICollectionReusableView() // Return an empty view for other supplementary views
-    }
-    
-    // UICollectionViewDelegateFlowLayout methods (for the vertical collection view)
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: collectionView.frame.width, height: 250) // Height of the horizontal cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: collectionView.frame.width, height: 30)
     }
 }
 
@@ -84,6 +116,7 @@ class SectionHeaderView: UICollectionReusableView {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 24, weight: .medium)
         return label
     }()
     
@@ -92,7 +125,7 @@ class SectionHeaderView: UICollectionReusableView {
         addSubview(titleLabel)
         
         NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16), // Adjust padding
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
     }

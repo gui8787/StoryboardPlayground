@@ -1,5 +1,5 @@
 //
-//  MyUITableViewController.swift
+//  MainMenuTableViewController.swift
 //  StoryboardPlayground
 //
 //  Created by Guilherme Pereira on 1/31/25.
@@ -7,13 +7,19 @@
 
 import UIKit
 
-class MyUITableViewController: UITableViewController {
+class MainMenuTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        return tableView.dequeueReusableCell(withIdentifier: "rootCellReuse", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "menuCellReuse", for: indexPath)
+        cell.textLabel?.text = indexPath.row == 0 ? "Store" : "Library"
+        if indexPath.row == 0 {
+            cell.isUserInteractionEnabled = false
+            cell.contentView.alpha = 0.5
+        }
+        return cell
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -26,7 +32,7 @@ class MyUITableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.row == 0 {
-            navigationController?.pushViewController(self.storyboard?.instantiateViewController(withIdentifier: "mainViewController") as! MainViewController, animated: true)
+            navigationController?.pushViewController(self.storyboard?.instantiateViewController(withIdentifier: "storeViewController") as! StoreViewController, animated: true)
         } else {
             navigationController?.pushViewController(CollectionViewController(), animated: true)
         }

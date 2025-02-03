@@ -1,5 +1,5 @@
 //
-//  MainViewController.swift
+//  StoreViewController.swift
 //  StoryboardPlayground
 //
 //  Created by Guilherme Pereira on 1/30/25.
@@ -7,10 +7,12 @@
 
 import UIKit
 
-class MainViewController: UIViewController {
+class StoreViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        title = "Store"
 
         let scrollableStackView = ScrollableStackView()
         scrollableStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -22,15 +24,6 @@ class MainViewController: UIViewController {
             scrollableStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollableStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
-
-        // Add your views to the stack view
-        for i in 1...20 { // Example: Adding 20 labels
-            let label = UILabel()
-            label.heightAnchor.constraint(equalToConstant: 40).isActive = true
-            label.text = "Label \(i)"
-            label.numberOfLines = 0
-            scrollableStackView.addArrangedSubview(label)
-        }
     }
 
 

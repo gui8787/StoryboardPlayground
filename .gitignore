@@ -56,5 +56,6 @@ id_rsa
 id_rsa.pub
 *.p12
 
-# Example of ignoring a specific file
-# MySecretFile.txt
+*.png
+*.jpg
+*.jpeg

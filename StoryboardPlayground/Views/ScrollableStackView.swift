@@ -18,9 +18,9 @@ class ScrollableStackView: UIView {
     private let stackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
-        stackView.spacing = 16 // Adjust spacing as needed
-        stackView.alignment = .fill // Or .leading, .center, .trailing as needed
-        stackView.distribution = .fill // Or .equalSpacing, .equalCentering, .fillProportionally
+        stackView.spacing = 16
+        stackView.alignment = .fill
+        stackView.distribution = .fill
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
@@ -53,7 +53,7 @@ class ScrollableStackView: UIView {
             stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            stackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor) // Critical: Widths must match for horizontal scrolling to be disabled, and for vertical scrolling to work properly.
+            stackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
         ])
     }
 

@@ -14,6 +14,8 @@ class CollectionViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        title = "Library"
+        
         customCollectionView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(customCollectionView)
         
